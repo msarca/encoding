@@ -88,6 +88,10 @@ abstract class Encoding
                 return $instances[$encoding];
             case 'UTF-16BE':
             case 'UTF-16LE':
+                if (!isset($instances[$encoding])) {
+                    $instances[$encoding] = new UTF16Encoding($encoding);
+                }
+                return $instances[$encoding];
             case 'x-user-defined':
                 return null;
         }
