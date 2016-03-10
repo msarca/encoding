@@ -33,7 +33,7 @@ class ReplacementEncoding extends Encoding
 
     public function getEncoder()
     {
-        throw new Exception("This encoding doesn't have an asssociated encoder");
+        throw new Exception("This encoding doesn't have an associated encoder");
     }
 
     public function getName()
