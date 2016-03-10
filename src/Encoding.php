@@ -97,7 +97,10 @@ abstract class Encoding
                 }
                 return $instances[$encoding];
             case 'x-user-defined':
-                return null;
+                if (!isset($instances[$encoding])) {
+                    $instances[$encoding] = new UserDefined();
+                }
+                return $instances[$encoding];
         }
 
         return null;
