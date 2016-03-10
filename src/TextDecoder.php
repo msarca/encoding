@@ -42,8 +42,8 @@ class TextDecoder
     public static function create($label = 'utf-8', array $options = array())
     {
         $encoding = Encoding::getEncoding($label);
-        //TODO: If encoding is failure or replacement, throw a RangeError.        
-        if ($encoding === null) {
+        
+        if ($encoding === null || $this->encoding() === 'replacement') {
             throw new Exception('Invalid encoding: ' . $label);
         }
 
