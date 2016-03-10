@@ -26,6 +26,11 @@ use Opis\Encoding\UserDefined\Decoder;
 class UserDefinedEncoding extends Encoding
 {
 
+    protected function __construct()
+    {
+        
+    }
+
     public function getDecoder()
     {
         return new Decoder();
