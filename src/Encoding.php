@@ -26,7 +26,7 @@ abstract class Encoding
     public static function getEncoding($label)
     {
         static $instances = array();
-        
+
         $encoding = static::getEncodingName($label);
 
         switch ($encoding) {
@@ -82,6 +82,10 @@ abstract class Encoding
             case 'EUC-KR':
             //Legacy miscellaneous encodings
             case 'replacement':
+                if (!isset($instances[$encoding])) {
+                    $instances[$encoding] = new ReplacementEncoding();
+                }
+                return $instances[$encoding];
             case 'UTF-16BE':
             case 'UTF-16LE':
             case 'x-user-defined':
