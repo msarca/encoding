@@ -23,9 +23,9 @@ namespace Opis\Encoding;
 abstract class Encoding
 {
 
-    public static function getEncoding($lablel)
+    public static function getEncoding($label)
     {
-        switch (strtolower($lablel)) {
+        switch (strtolower($label)) {
             case 'utf-8':
             case 'utf8':
             case 'unicode-1-1-utf-8':
@@ -38,4 +38,6 @@ abstract class Encoding
     abstract public function getDecoder();
 
     abstract public function getEncoder();
+
+    abstract public function getName();
 }

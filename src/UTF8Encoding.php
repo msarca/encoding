@@ -26,13 +26,18 @@ use Opis\Encoding\UTF8\Decoder;
 class UTF8Encoding extends Encoding
 {
 
-    public function getDecoder()
+    public function getDecoder($new = false)
     {
         return new Decoder();
     }
 
-    public function getEncoder()
+    public function getEncoder($new = false)
     {
         return new Encoder();
+    }
+
+    public function getName()
+    {
+        return 'UTF-8';
     }
 }

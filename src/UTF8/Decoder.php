@@ -24,9 +24,79 @@ use Opis\Encoding\HandleInterface;
 
 class Decoder implements HandleInterface
 {
+    protected $cp = 0;
+    protected $seen = 0;
+    protected $needed = 0;
+    protected $lower = 0x80;
+    protected $upper = 0xBF;
 
-    public function handle($stream, $token)
+    public function handle($byte, &$result)
     {
-        
+        if ($this->needed === 0) {
+            if ($byte >= 0x00 && $byte <= 0x7F) {
+                $result = $byte;
+                return self::STATUS_TOKEN;
+            } elseif ($byte >= 0xC2 && $byte <= 0XDF) {
+                $this->needed = 1;
+                $this->cp = $byte - 0xC0;
+            } elseif ($byte >= 0xE0 && $byte <= 0xEF) {
+                switch ($byte) {
+                    case 0xE0:
+                        $this->lower = 0xA0;
+                        break;
+                    case 0xED:
+                        $this->upper = 0x9F;
+                        break;
+                }
+                $this->needed = 2;
+                $this->cp = $byte - 0xE0;
+            } elseif ($byte >= 0xF0 && $byte <= 0xF4) {
+                switch ($byte) {
+                    case 0xF0:
+                        $this->lower = 0x90;
+                        break;
+                    case 0xF4:
+                        $this->upper = 0x8F;
+                        break;
+                }
+                $this->needed = 3;
+                $this->cp = $byte - 0xF0;
+            } else {
+                return self::STATUS_ERROR;
+            }
+
+            $this->cp = $this->cp << (6 * $this->needed);
+            return self::STATUS_CONTINUE;
+        }
+
+        if (!($byte >= $this->lower && $byte <= $this->upper)) {
+            $this->cp = $this->needed = $this->seen = 0;
+            $this->lower = 0x80;
+            $this->upper = 0xBF;
+            $result = $token;
+            return self::STATUS_ERROR;
+        }
+
+        $this->lower = 0x80;
+        $this->upper = 0xBF;
+        $this->seen++;
+        $this->cp += ($byte - 0x80) << (6 * ($this->needed - $this->seen));
+
+        if ($this->needed !== $this->seen) {
+            return self::STATUS_CONTINUE;
+        }
+
+        $result = $this->cp;
+        $this->cp = $this->needed = $this->seen = 0;
+        return self::STATUS_TOKEN;
+    }
+
+    public function handleEOF(&$result)
+    {
+        if ($this->needed !== 0) {
+            $this->needed = 0;
+            return self::STATUS_ERROR;
+        }
+        return self::STATUS_FINISHED;
     }
 }

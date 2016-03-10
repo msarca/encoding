@@ -22,5 +22,51 @@ namespace Opis\Encoding;
 
 class TextEncoder
 {
-    //put your code here
+    protected $isDecoder = false;
+    protected $encoding;
+
+    public function __construct(Encoding $encoding)
+    {
+        $this->encoding = $encoding;
+    }
+
+    public static function create($label = 'utf-8')
+    {
+        $encoding = Encoding::getEncoding($label);
+        
+        if ($encoding === null || !in_array(strtolower($encoding->getName()), array('utf-8', 'utf-16', 'utf-16be', 'utf-16le'))) {
+            throw new Exception('Unsupported encoding ' . $label);
+        }
+        
+        return new static($encoding);
+    }
+
+    public function encode(array $input = array())
+    {
+        $output = '';
+        $result = null;
+        $encoder = $this->encoding->getEncoder();
+
+        for ($i = 0, $l = count($input); $i < $l; $i++) {
+            $codepoint = $input[$i];
+            $status = $encoder->handle($codepoint, $result);
+
+            if ($status === HandleInterface::STATUS_TOKEN) {
+                $output .= $result;
+                continue;
+            }
+
+            if ($status === HandleInterface::STATUS_ERROR) {
+                //Error mode fatal
+                throw new Exception('Error while decoding');
+            }
+        }
+        
+        return $output;
+    }
+
+    public function encoding()
+    {
+        return strtolower($this->encoding->getName());
+    }
 }

@@ -22,6 +22,12 @@ namespace Opis\Encoding;
 
 interface HandleInterface
 {
+    const STATUS_FINISHED = 1;
+    const STATUS_CONTINUE = 2;
+    const STATUS_ERROR = 3;
+    const STATUS_TOKEN = 4;
 
-    public function handle($stream, $token);
+    public function handle($input, &$result);
+    
+    public function handleEOF(&$result);
 }

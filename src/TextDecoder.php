@@ -22,30 +22,39 @@ namespace Opis\Encoding;
 
 class TextDecoder
 {
-    protected $encoding;
-    protected $ignoreBOM = false;
-    protected $errorMode = 'replacement';
-    protected $flagDoNotFlush = false;
-    protected $flagBOMSeen = false;
-    protected $decoder;
-    protected $stream;
+    const DO_NOT_FLUSH = 1;
+    const BOM_SEEN = 2;
 
-    public function __construct($label = 'utf-8', array $options = array())
+    protected $encoding;
+    protected $ignoreBOM;
+    protected $errorMode;
+    protected $decoder;
+    protected $flags = 0;
+
+    //public function __construct($label = 'utf-8', array $options = array())
+    public function __construct(Encoding $encoding, $fatalMode = false, $ignoreBOM = false)
     {
-        $this->encoding = Encoding::getEncoding($label);
-        //TODO: If encoding is failure or replacement, throw a RangeError. 
+        $this->encoding = $encoding;
+        $this->errorMode = $fatalMode ? 'fatal' : 'replacement';
+        $this->ignoreBOM = $ignoreBOM;
+    }
+
+    public static function create($label = 'utf-8', array $options = array())
+    {
+        $encoding = Encoding::getEncoding($label);
+        //TODO: If encoding is failure or replacement, throw a RangeError.        
+        if ($encoding === null) {
+            throw new Exception('Invalid encoding: ' . $label);
+        }
+
         $options += array(
-            'fatal' => false,
+            'fatal'     => false,
             'ignoreBOM' => false,
         );
 
-        if ($options['fatal']) {
-            $this->errorMode = 'fatal';
-        }
+        $instance = new static($encoding, (bool) $options['fatal'], (bool) $options['ignoreBOM']);
 
-        if ($options['ignoreBOM']) {
-            $this->ignoreBOM = true;
-        }
+        return $instance;
     }
 
     public function decode($input = '', array $options = array())
@@ -54,36 +63,50 @@ class TextDecoder
             'stream' => false,
         );
 
-        if (!$this->flagDoNotFlush) {
+        if (!($this->flags & self::DO_NOT_FLUSH == self::DO_NOT_FLUSH)) {
             $this->decoder = $this->encoding->getDecoder();
-            $this->stream = new Stream();
-            $this->flagBOMSeen = false;
+            $this->flags &= ~self::BOM_SEEN;
         }
 
-        $this->flagDoNotFlush = (bool) $options['stream'];
-
-        if ($input !== '') {
-            $this->stream->write($input);
+        if ($options['stream']) {
+            $this->flags |= self::DO_NOT_FLUSH;
+        } else {
+            $this->flags &= ~self::DO_NOT_FLUSH;
         }
 
-        $output = new Stream();
+        $result = null;
+        $output = array();
 
-        while (true) {
-            $token = $this->stream->read();
-            if ($token === Stream::EOF && $this->flagDoNotFlush) {
-                return $this->serializeStream($output);
+        for ($i = 0, $l = strlen($input); $i < $l; $i++) {
+
+            $byte = ord($input[$i]);
+            $status = $this->decoder->handle($byte, $result);
+
+            if ($status === HandleInterface::STATUS_ERROR) {
+                if ($this->errorMode == 'fatal') {
+                    throw new Exception('Error while decoding');
+                }
+                //replacement
+                $output[] = 0xFFFD;
+                continue;
             }
 
-            $result = $this->process($token, $this->decoder, $this->stream, $output, $this->errorMode);
-
-            if ($result['type'] === 'finished') {
-                return $this->serializeStream($output);
-            }
-
-            if ($result['type'] === 'error') {
-                throw new Exception('Error while decoding');
+            if ($status === HandleInterface::STATUS_TOKEN) {
+                $output[] = $result;
             }
         }
+
+        if ($this->flags & self::DO_NOT_FLUSH == self::DO_NOT_FLUSH) {
+            return $this->serializeStream($output);
+        }
+
+        $status = $this->decoder->handleEOF($result);
+
+        if ($status === HandleInterface::STATUS_ERROR) {
+            throw new Exception('Error while decoding');
+        }
+
+        return $this->serializeStream($output);
     }
 
     public function encoding()
@@ -93,7 +116,7 @@ class TextDecoder
 
     public function fatal()
     {
-        return $this->errorMode === 'fatal';
+        return $this->errorMode === static::FATAL_MODE;
     }
 
     public function ignoreBOM()
@@ -101,13 +124,17 @@ class TextDecoder
         return $this->ignoreBOM;
     }
 
-    protected function process($token, $decoder, $stream, $output, $errorMode)
+    protected function serializeStream(array $stream)
     {
-        
-    }
+        $matchEncoding = in_array($this->encoding(), array('utf-8', 'utf-16be', 'utf-16le', 'utf-16'));
 
-    protected function serializeStream($stream)
-    {
-        
+        if ($matchEncoding && !$this->ignoreBOM && !($this->flags & self::BOM_SEEN == self::BOM_SEEN)) {
+            $this->flags |= self::BOM_SEEN;
+            if (0xFEFF === reset($stream)) {
+                array_shift($stream);
+            }
+        }
+
+        return $stream;
     }
 }

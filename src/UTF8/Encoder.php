@@ -25,8 +25,39 @@ use Opis\Encoding\HandleInterface;
 class Encoder implements HandleInterface
 {
 
-    public function handle($stream, $token)
+    public function handle($codepoint, &$result)
     {
-        
+        if ($codepoint >= 0x0000 && $codepoint <= 0x007F) {
+            $result = chr($codepoint);
+            return self::STATUS_TOKEN;
+        }
+
+        if ($codepoint >= 0x0080 && $codepoint <= 0x07FF) {
+            $count = 1;
+            $offset = 0xC0;
+        } elseif ($codepoint >= 0x0800 && $codepoint <= 0xFFFF) {
+            $count = 2;
+            $offset = 0xE0;
+        } elseif ($codepoint >= 0x10000 && $codepoint <= 0x10FFFF) {
+            $count = 3;
+            $offset = 0xF0;
+        }
+
+        $bytes = chr(($codepoint >> (6 * $count)) + $offset);
+
+        while ($count > 0) {
+            $temp = $codepoint >> (6 * ($count - 1));
+            $bytes .= chr(0x80 | ($temp & 0x3F));
+            $count--;
+        }
+
+        $result = $bytes;
+
+        return self::STATUS_TOKEN;
+    }
+
+    public function handleEOF(&$result)
+    {
+        return self::STATUS_FINISHED;
     }
 }
