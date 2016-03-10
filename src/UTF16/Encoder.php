@@ -26,7 +26,7 @@ class Encoder implements HandleInterface
 {
     protected $beEncoder = false;
 
-    protected function __construct($beencoder = false)
+    public function __construct($beencoder = false)
     {
         $this->beEncoder = $beencoder;
     }

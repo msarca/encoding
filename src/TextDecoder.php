@@ -20,6 +20,8 @@
 
 namespace Opis\Encoding;
 
+use Exception;
+
 class TextDecoder
 {
     const DO_NOT_FLUSH = 1;

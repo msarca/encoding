@@ -72,14 +72,18 @@ abstract class Encoding
             //Legacy multi-byte Chinese (simplified) encodings
             case 'GBK':
             case 'gb18030':
+                return null;
             //Legacy multi-byte Chinese (traditional) encodings
             case 'Big5':
+                return null;
             //Legacy multi-byte Japanese encodings
             case 'EUC-JP':
             case 'ISO-2022-JP':
             case 'Shift_JIS':
+                return null;
             //Legacy multi-byte Korean encodings
             case 'EUC-KR':
+                return null;
             //Legacy miscellaneous encodings
             case 'replacement':
                 if (!isset($instances[$encoding])) {

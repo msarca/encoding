@@ -28,7 +28,7 @@ class Decoder implements HandleInterface
     protected $leadSurrogate = null;
     protected $beDecoder = false;
     
-    protected function __construct($bedecoder = false)
+    public function __construct($bedecoder = false)
     {
         $this->beDecoder = $bedecoder;
     }
