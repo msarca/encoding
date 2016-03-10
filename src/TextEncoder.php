@@ -33,17 +33,17 @@ class TextEncoder
     public static function create($label = 'utf-8')
     {
         $encoding = Encoding::getEncoding($label);
-        
+
         if ($encoding === null || !in_array(strtolower($encoding->getName()), array('utf-8', 'utf-16', 'utf-16be', 'utf-16le'))) {
             throw new Exception('Unsupported encoding ' . $label);
         }
-        
+
         return new static($encoding);
     }
 
-    public function encode(array $input = array())
+    public function encode(array $input = array(), $string = false)
     {
-        $output = '';
+        $output = array();
         $result = null;
         $encoder = $this->encoding->getEncoder();
 
@@ -52,7 +52,7 @@ class TextEncoder
             $status = $encoder->handle($codepoint, $result);
 
             if ($status === HandleInterface::STATUS_TOKEN) {
-                $output .= $result;
+                $output[] = $result;
                 continue;
             }
 
@@ -61,8 +61,8 @@ class TextEncoder
                 throw new Exception('Error while decoding');
             }
         }
-        
-        return $output;
+
+        return $string ? implode('', $output) : $output;
     }
 
     public function encoding()
