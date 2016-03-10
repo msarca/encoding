@@ -86,6 +86,10 @@ class TextDecoder
                 continue;
             }
 
+            if ($status === HandleInterface::STATUS_CONTINUE) {
+                continue;
+            }
+
             if ($status === HandleInterface::STATUS_ERROR) {
                 if ($this->errorMode == 'fatal') {
                     throw new Exception('Error while decoding');
