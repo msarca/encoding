@@ -24,18 +24,19 @@ use Exception;
 
 class TextEncoder
 {
-    protected $isDecoder = false;
     protected $encoding;
+    protected $errorMode;
 
-    public function __construct(Encoding $encoding)
+    public function __construct(Encoding $encoding, $htmlMode = false)
     {
         $this->encoding = $encoding;
+        $this->errorMode = $htmlMode ? 'html' : 'fatal';
     }
 
     public static function create($label = 'utf-8')
     {
         $encoding = Encoding::getEncoding($label);
-        
+
         if ($encoding === null || !in_array(strtolower($encoding->getName()), array('utf-8', 'utf-16', 'utf-16be', 'utf-16le'))) {
             throw new Exception('Unsupported encoding ' . $label);
         }
@@ -59,8 +60,19 @@ class TextEncoder
             }
 
             if ($status === HandleInterface::STATUS_ERROR) {
-                //Error mode fatal
-                throw new Exception('Error while decoding');
+                if ($this->errorMode === 'fatal') {
+                    throw new Exception('Error while decoding');
+                }
+                //html mode here
+                $cp = (string) $codepoint;
+                $insert = array(0x0026, 0x0023);
+                for ($j = 0, $jl = strlen($cp); $j < $jl; $j++) {
+                    $insert[] = ord($cp[$j]);
+                }
+                $insert[] = 0x003B;
+                $l += count($insert);
+                array_splice($input, $i + 1, null, $insert);
+                continue;
             }
         }
 
