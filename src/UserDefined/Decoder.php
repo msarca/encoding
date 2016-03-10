@@ -25,7 +25,7 @@ use Opis\Encoding\HandleInterface;
 class Decoder implements HandleInterface
 {
 
-    public function handle($byte, &$result)
+    public function handle($byte, $stream, &$result)
     {
         if ($byte >= 0x00 && $byte <= 0x7F) {
             $result = $byte;
@@ -36,7 +36,7 @@ class Decoder implements HandleInterface
         return self::STATUS_TOKEN;
     }
 
-    public function handleEOF(&$result)
+    public function handleEOF($stream, &$result)
     {
         return self::STATUS_FINISHED;
     }

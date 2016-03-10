@@ -27,13 +27,13 @@ class Decoder implements HandleInterface
     protected $leadByte = null;
     protected $leadSurrogate = null;
     protected $beDecoder = false;
-    
+
     public function __construct($bedecoder = false)
     {
         $this->beDecoder = $bedecoder;
     }
 
-    public function handle($byte, &$result)
+    public function handle($byte, $stream, &$result)
     {
         if ($this->leadByte === null) {
             $this->leadByte = $byte;
@@ -58,11 +58,11 @@ class Decoder implements HandleInterface
             $byte1 = $cu >> 8;
             $byte2 = $cu & 0x00FF;
             if ($this->beDecoder) {
-                $result = chr($byte1) . chr($byte2);
+                $value = chr($byte1) . chr($byte2);
             } else {
-                $result = chr($byte2) . chr($byte1);
+                $value = chr($byte2) . chr($byte1);
             }
-
+            $stream($value);
             return self::STATUS_ERROR;
         }
 
@@ -74,12 +74,12 @@ class Decoder implements HandleInterface
         if ($cu >= 0xDC00 && $cu <= 0xDFFF) {
             return self::STATUS_ERROR;
         }
-        
+
         $result = $cu;
         return self::STATUS_TOKEN;
     }
 
-    public function handleEOF(&$result)
+    public function handleEOF($stream, &$result)
     {
         if ($this->leadByte !== null || $this->leadSurrogate !== null) {
             $this->leadByte = $this->leadSurrogate = null;

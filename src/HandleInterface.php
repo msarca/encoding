@@ -28,7 +28,7 @@ interface HandleInterface
     const STATUS_TOKEN = 4;
     const STATUS_TOKEN_ARRAY = 5;
 
-    public function handle($input, &$result);
-    
-    public function handleEOF(&$result);
+    public function handle($input, $stream, &$result);
+
+    public function handleEOF($stream, &$result);
 }

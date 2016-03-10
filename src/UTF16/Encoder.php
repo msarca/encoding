@@ -31,7 +31,7 @@ class Encoder implements HandleInterface
         $this->beEncoder = $beencoder;
     }
 
-    public function handle($codepoint, &$result)
+    public function handle($codepoint, $stream, &$result)
     {
         if ($codepoint >= 0x0000 && $codepoint <= 0xFFFF) {
             $byte1 = $codepoint >> 8;
@@ -60,7 +60,7 @@ class Encoder implements HandleInterface
         return self::STATUS_TOKEN;
     }
 
-    public function handleEOF(&$result)
+    public function handleEOF($stream, &$result)
     {
         return self::STATUS_FINISHED;
     }

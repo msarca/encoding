@@ -72,7 +72,10 @@ abstract class Encoding
             //Legacy multi-byte Chinese (simplified) encodings
             case 'GBK':
             case 'gb18030':
-                return null;
+                if (!isset($instances[$encoding])) {
+                    $instances[$encoding] = new GBEncoding($encoding);
+                }
+                return $instances[$encoding];
             //Legacy multi-byte Chinese (traditional) encodings
             case 'Big5':
                 return null;

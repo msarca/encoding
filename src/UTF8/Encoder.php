@@ -25,7 +25,7 @@ use Opis\Encoding\HandleInterface;
 class Encoder implements HandleInterface
 {
 
-    public function handle($codepoint, &$result)
+    public function handle($codepoint, $stream, &$result)
     {
         if ($codepoint >= 0x0000 && $codepoint <= 0x007F) {
             $result = chr($codepoint);
@@ -56,7 +56,7 @@ class Encoder implements HandleInterface
         return self::STATUS_TOKEN;
     }
 
-    public function handleEOF(&$result)
+    public function handleEOF($stream, &$result)
     {
         return self::STATUS_FINISHED;
     }

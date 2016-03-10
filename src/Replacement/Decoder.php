@@ -26,7 +26,7 @@ class Decoder implements HandleInterface
 {
     protected $replacementErrorReturned = false;
 
-    public function handle($byte, &$result)
+    public function handle($byte, $stream, &$result)
     {
         if (!$this->replacementErrorReturned) {
             $this->replacementErrorReturned = true;
@@ -36,7 +36,7 @@ class Decoder implements HandleInterface
         return self::STATUS_FINISHED;
     }
 
-    public function handleEOF(&$result)
+    public function handleEOF($stream, &$result)
     {
         return self::STATUS_FINISHED;
     }

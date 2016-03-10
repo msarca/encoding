@@ -30,7 +30,7 @@ class Decoder implements HandleInterface
     protected $lower = 0x80;
     protected $upper = 0xBF;
 
-    public function handle($byte, &$result)
+    public function handle($byte, $stream, &$result)
     {
         if ($this->needed === 0) {
             if ($byte >= 0x00 && $byte <= 0x7F) {
@@ -73,7 +73,7 @@ class Decoder implements HandleInterface
             $this->cp = $this->needed = $this->seen = 0;
             $this->lower = 0x80;
             $this->upper = 0xBF;
-            $result = chr($byte);
+            $stream(chr($byte));
             return self::STATUS_ERROR;
         }
 
@@ -91,7 +91,7 @@ class Decoder implements HandleInterface
         return self::STATUS_TOKEN;
     }
 
-    public function handleEOF(&$result)
+    public function handleEOF($stream, &$result)
     {
         if ($this->needed !== 0) {
             $this->needed = 0;

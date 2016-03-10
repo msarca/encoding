@@ -47,12 +47,23 @@ class TextEncoder
     public function encode(array $input = array(), $string = false)
     {
         $output = array();
-        $result = null;
         $encoder = $this->encoding->getEncoder();
+        $ptr = 0;
+        $length = count($input);
 
-        for ($i = 0, $l = count($input); $i < $l; $i++) {
-            $codepoint = $input[$i];
-            $status = $encoder->handle($codepoint, $result);
+        $stream = function($value, $prepend = true) use(&$input, &$ptr, &$length) {
+            if ($prepend) {
+                array_splice($input, $ptr + 1, null, $value);
+            } else {
+                array_splice($input, $length + 1, null, $value);
+            }
+            $length += is_array($value) ? count($input) : 1;
+        };
+
+        for (; $ptr < $length; $ptr++) {
+            $result = null;
+            $codepoint = $input[$ptr];
+            $status = $encoder->handle($codepoint, $stream, $result);
 
             if ($status === HandleInterface::STATUS_TOKEN) {
                 $output[] = $result;
@@ -63,6 +74,7 @@ class TextEncoder
                 if ($this->errorMode === 'fatal') {
                     throw new Exception('Error while decoding');
                 }
+
                 //html mode here
                 if ($result === null) {
                     continue;
@@ -74,8 +86,7 @@ class TextEncoder
                     $insert[] = ord($cp[$j]);
                 }
                 $insert[] = 0x003B;
-                $l += count($insert);
-                array_splice($input, $i + 1, null, $insert);
+                $stream($insert);
                 continue;
             }
         }

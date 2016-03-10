@@ -31,13 +31,13 @@ class Encoder implements HandleInterface
         $this->index = $index;
     }
 
-    public function handle($codepoint, &$result)
+    public function handle($codepoint, $stream, &$result)
     {
         if ($codepoint >= 0x0000 && $codepoint < + 0x007F) {
             $result = chr($codepoint);
             return self::STATUS_TOKEN;
         }
-        
+
         $ptr = isset($this->index[$codepoint]) ? reset($this->index[$codepoint]) : null;
         if ($ptr === null) {
             return self::STATUS_ERROR;
@@ -46,7 +46,7 @@ class Encoder implements HandleInterface
         return self::STATUS_TOKEN;
     }
 
-    public function handleEOF(&$result)
+    public function handleEOF($stream, &$result)
     {
         return self::STATUS_FINISHED;
     }

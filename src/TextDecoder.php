@@ -76,12 +76,23 @@ class TextDecoder
             $this->flags &= ~self::DO_NOT_FLUSH;
         }
 
+        $ptr = 0;
+        $length = strlen($input);
         $output = array();
 
-        for ($i = 0, $l = strlen($input); $i < $l; $i++) {
+        $stream = function($value, $prepend = true) use(&$input, &$ptr, &$length) {
+            if ($prepend) {
+                $input = substr($input, 0, $ptr + 1) . $value . substr($input, $ptr + 1);
+            } else {
+                $input .= $value;
+            }
+            $length += strlen($value);
+        };
+
+        for (; $ptr < $length; $ptr++) {
             $result = null; //Reset result
-            $byte = ord($input[$i]);
-            $status = $this->decoder->handle($byte, $result);
+            $byte = ord($input[$ptr]);
+            $status = $this->decoder->handle($byte, $stream, $result);
 
             if ($status === HandleInterface::STATUS_TOKEN) {
                 $output[] = $result;
@@ -96,21 +107,6 @@ class TextDecoder
                 if ($this->errorMode == 'fatal') {
                     throw new Exception('Error while decoding');
                 }
-
-                if ($result !== null) {
-                    $length = strlen($result);
-
-                    if ($length === 1) {
-                        if ($input[$i] !== $result) {
-                            $input[$i] = $result;
-                        }
-                        $i--;
-                    } else {
-                        $input = substr($input, 0, $i + 1) . $result . substr($input, $i + 1);
-                        $l += $length;
-                    }
-                }
-
                 //replacement
                 $output[] = 0xFFFD;
                 continue;
