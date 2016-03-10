@@ -43,7 +43,7 @@ class TextDecoder
     {
         $encoding = Encoding::getEncoding($label);
         
-        if ($encoding === null || $this->encoding() === 'replacement') {
+        if ($encoding === null || strtolower($encoding->getName()) === 'replacement') {
             throw new Exception('Invalid encoding: ' . $label);
         }
 
