@@ -366,6 +366,7 @@ abstract class Encoding
                 return 'replacement';
             case 'utf-16be':
                 return 'UTF-16BE';
+            case 'utf16':
             case 'utf-16':
             case 'utf-16le':
                 return 'UTF-16LE';
