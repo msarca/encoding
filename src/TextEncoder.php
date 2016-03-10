@@ -64,7 +64,11 @@ class TextEncoder
                     throw new Exception('Error while decoding');
                 }
                 //html mode here
-                $cp = (string) $codepoint;
+                if ($result === null) {
+                    continue;
+                }
+
+                $cp = (string) $result;
                 $insert = array(0x0026, 0x0023);
                 for ($j = 0, $jl = strlen($cp); $j < $jl; $j++) {
                     $insert[] = ord($cp[$j]);
