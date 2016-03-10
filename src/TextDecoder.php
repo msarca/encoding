@@ -94,6 +94,21 @@ class TextDecoder
                 if ($this->errorMode == 'fatal') {
                     throw new Exception('Error while decoding');
                 }
+
+                if ($result !== null) {
+                    $length = strlen($result);
+
+                    if ($length === 1) {
+                        if ($input[$i] !== $result) {
+                            $input[$i] = $result;
+                        }
+                        $i--;
+                    } else {
+                        $input = substr($input, 0, $i + 1) . $result . substr($input, $i + 1);
+                        $l += $length;
+                    }
+                }
+
                 //replacement
                 $output[] = 0xFFFD;
                 continue;

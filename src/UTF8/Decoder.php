@@ -73,7 +73,7 @@ class Decoder implements HandleInterface
             $this->cp = $this->needed = $this->seen = 0;
             $this->lower = 0x80;
             $this->upper = 0xBF;
-            $result = $token;
+            $result = chr($byte);
             return self::STATUS_ERROR;
         }
 
