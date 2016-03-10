@@ -74,11 +74,10 @@ class TextDecoder
             $this->flags &= ~self::DO_NOT_FLUSH;
         }
 
-        $result = null;
         $output = array();
 
         for ($i = 0, $l = strlen($input); $i < $l; $i++) {
-
+            $result = null; //Reset result
             $byte = ord($input[$i]);
             $status = $this->decoder->handle($byte, $result);
 
@@ -100,6 +99,11 @@ class TextDecoder
                 foreach ($result as $value) {
                     $output[] = $result;
                 }
+                continue;
+            }
+
+            if ($status === HandleInterface::STATUS_FINISHED) {
+                break;
             }
         }
 
