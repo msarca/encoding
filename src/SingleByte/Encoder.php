@@ -18,31 +18,36 @@
  * limitations under the License.
  * ============================================================================ */
 
-namespace Opis\Encoding;
+namespace Opis\Encoding\SingleByte;
 
-use Opis\Encoding\UTF8\Encoder;
-use Opis\Encoding\UTF8\Decoder;
+use Opis\Encoding\HandleInterface;
 
-class UTF8Encoding extends Encoding
+class Encoder implements HandleInterface
 {
+    protected $index;
 
-    protected function __construct()
+    public function __construct($index)
     {
+        $this->index = $index;
+    }
+
+    public function handle($codepoint, &$result)
+    {
+        if ($codepoint >= 0x0000 && $codepoint < + 0x007F) {
+            $result = chr($codepoint);
+            return self::STATUS_TOKEN;
+        }
         
-    }
-    
-    public function getDecoder($new = false)
-    {
-        return new Decoder();
-    }
-
-    public function getEncoder($new = false)
-    {
-        return new Encoder();
+        $ptr = isset($this->index[$codepoint]) ? reset($this->index[$codepoint]) : null;
+        if ($ptr === null) {
+            return self::STATUS_ERROR;
+        }
+        $result = chr($ptr + 0x80);
+        return self::STATUS_TOKEN;
     }
 
-    public function getName()
+    public function handleEOF(&$result)
     {
-        return 'UTF-8';
+        return self::STATUS_FINISHED;
     }
 }

@@ -26,6 +26,7 @@ interface HandleInterface
     const STATUS_CONTINUE = 2;
     const STATUS_ERROR = 3;
     const STATUS_TOKEN = 4;
+    const STATUS_TOKEN_ARRAY = 5;
 
     public function handle($input, &$result);
     

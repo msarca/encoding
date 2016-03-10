@@ -42,7 +42,7 @@ class TextDecoder
     public static function create($label = 'utf-8', array $options = array())
     {
         $encoding = Encoding::getEncoding($label);
-        
+
         if ($encoding === null || strtolower($encoding->getName()) === 'replacement') {
             throw new Exception('Invalid encoding: ' . $label);
         }
@@ -82,6 +82,11 @@ class TextDecoder
             $byte = ord($input[$i]);
             $status = $this->decoder->handle($byte, $result);
 
+            if ($status === HandleInterface::STATUS_TOKEN) {
+                $output[] = $result;
+                continue;
+            }
+
             if ($status === HandleInterface::STATUS_ERROR) {
                 if ($this->errorMode == 'fatal') {
                     throw new Exception('Error while decoding');
@@ -91,8 +96,10 @@ class TextDecoder
                 continue;
             }
 
-            if ($status === HandleInterface::STATUS_TOKEN) {
-                $output[] = $result;
+            if ($status === HandleInterface::STATUS_TOKEN_ARRAY) {
+                foreach ($result as $value) {
+                    $output[] = $result;
+                }
             }
         }
 

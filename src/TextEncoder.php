@@ -20,6 +20,8 @@
 
 namespace Opis\Encoding;
 
+use Exception;
+
 class TextEncoder
 {
     protected $isDecoder = false;
@@ -33,7 +35,7 @@ class TextEncoder
     public static function create($label = 'utf-8')
     {
         $encoding = Encoding::getEncoding($label);
-
+        
         if ($encoding === null || !in_array(strtolower($encoding->getName()), array('utf-8', 'utf-16', 'utf-16be', 'utf-16le'))) {
             throw new Exception('Unsupported encoding ' . $label);
         }

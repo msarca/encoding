@@ -25,12 +25,17 @@ abstract class Encoding
 
     public static function getEncoding($label)
     {
+        static $instances = array();
+        
         $encoding = static::getEncodingName($label);
 
         switch ($encoding) {
             //The Encoding
             case 'UTF-8':
-                return new UTF8Encoding();
+                if (!isset($instances[$encoding])) {
+                    $instances[$encoding] = new UTF8Encoding();
+                }
+                return $instances[$encoding];
             //Legacy single-byte encodings
             case 'IBM866':
             case 'ISO-8859-2':
@@ -60,6 +65,10 @@ abstract class Encoding
             case 'windows-1257':
             case 'windows-1258':
             case 'x-mac-cyrillic':
+                if (!isset($instances[$encoding])) {
+                    $instances[$encoding] = new SingleByteEncoding($encoding);
+                }
+                return $instances[$encoding];
             //Legacy multi-byte Chinese (simplified) encodings
             case 'GBK':
             case 'gb18030':
@@ -84,7 +93,7 @@ abstract class Encoding
 
     public static function getEncodingName($label)
     {
-        switch ($label) {
+        switch (strtolower(trim($label))) {
             //The Encoding
             case 'unicode-1-1-utf-8':
             case 'utf-8':
