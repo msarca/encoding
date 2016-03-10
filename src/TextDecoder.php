@@ -128,7 +128,7 @@ class TextDecoder
             return $this->serializeStream($output);
         }
 
-        $status = $this->decoder->handleEOF($result);
+        $status = $this->decoder->handleEOF($stream, $result);
 
         if ($status === HandleInterface::STATUS_ERROR) {
             throw new Exception('Error while decoding');
