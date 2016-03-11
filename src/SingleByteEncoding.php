@@ -32,35 +32,6 @@ class SingleByteEncoding extends Encoding
         $this->name = $name;
     }
 
-    protected function getIndexCodePoint()
-    {
-        static $index = array();
-
-        if (!isset($index[$this->name])) {
-            $path = dirname(__DIR__) . '/bin/index/' . strtolower($this->name) . '.php';
-            $index[$this->name] = include $path;
-        }
-
-        return $index[$this->name];
-    }
-    
-    protected function getIndexPointer()
-    {
-        static $index = array();
-        if (!isset($index[$this->name])) {
-            $value = array();
-            foreach($this->getIndexCodePoint() as $pointer => $codePoint) {
-                if (!isset($value[$codePoint])) {
-                    $value[$codePoint] = array();
-                }
-                $value[$codePoint][] = $pointer;
-            }
-            $index[$this->name] = $value;
-        }
-        
-        return $index[$this->name];
-    }
-
     public function getDecoder()
     {
         return new Decoder($this->getIndexCodePoint());
@@ -74,5 +45,34 @@ class SingleByteEncoding extends Encoding
     public function getName()
     {
         return $this->name;
+    }
+
+    protected function getIndexCodePoint()
+    {
+        static $index = array();
+
+        if (!isset($index[$this->name])) {
+            $path = dirname(__DIR__) . '/bin/index/' . strtolower($this->name) . '.php';
+            $index[$this->name] = include $path;
+        }
+
+        return $index[$this->name];
+    }
+
+    protected function getIndexPointer()
+    {
+        static $index = array();
+        if (!isset($index[$this->name])) {
+            $value = array();
+            foreach ($this->getIndexCodePoint() as $pointer => $codePoint) {
+                if (!isset($value[$codePoint])) {
+                    $value[$codePoint] = array();
+                }
+                $value[$codePoint][] = $pointer;
+            }
+            $index[$this->name] = $value;
+        }
+
+        return $index[$this->name];
     }
 }

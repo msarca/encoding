@@ -26,6 +26,21 @@ use Opis\Encoding\Big5\Decoder;
 class Big5Encoding extends Encoding
 {
 
+    public function getDecoder()
+    {
+        return new Decoder($this->getIndexCodePoint());
+    }
+
+    public function getEncoder()
+    {
+        return new Encoder($this->getIndexPointer());
+    }
+
+    public function getName()
+    {
+        return 'Big5';
+    }
+
     protected function getIndexCodePoint()
     {
         static $index = null;
@@ -58,20 +73,5 @@ class Big5Encoding extends Encoding
         }
 
         return $index;
-    }
-
-    public function getDecoder()
-    {
-        return new Decoder($this->getIndexCodePoint());
-    }
-
-    public function getEncoder()
-    {
-        return new Encoder($this->getIndexPointer());
-    }
-
-    public function getName()
-    {
-        return 'Big5';
     }
 }

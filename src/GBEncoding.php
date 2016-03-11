@@ -32,6 +32,21 @@ class GBEncoding extends Encoding
         $this->name = $name;
     }
 
+    public function getDecoder()
+    {
+        return new Decoder($this->getIndexCodePoint(), $this->getIndexRanges());
+    }
+
+    public function getEncoder()
+    {
+        return new Encoder($this->getIndexCodePoint(), $this->getIndexPointerRanges(), $this->name === 'GBK');
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
     protected function getIndexCodePoint()
     {
         static $index = null;
@@ -84,20 +99,5 @@ class GBEncoding extends Encoding
         }
 
         return $index;
-    }
-
-    public function getDecoder()
-    {
-        return new Decoder($this->getIndexCodePoint(), $this->getIndexRanges());
-    }
-
-    public function getEncoder()
-    {
-        return new Encoder($this->getIndexCodePoint(), $this->getIndexPointerRanges(), $this->name === 'GBK');
-    }
-
-    public function getName()
-    {
-        return $this->name;
     }
 }
