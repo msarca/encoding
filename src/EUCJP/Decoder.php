@@ -60,7 +60,7 @@ class Decoder implements HandleInterface
             }
             $this->jis0212 = false;
             if (!($byte >= 0xA1 && $byte <= 0xFE)) {
-                $stream($byte);
+                $stream(chr($byte));
             }
             if ($cp === null) {
                 return self::STATUS_ERROR;
