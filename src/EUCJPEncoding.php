@@ -28,58 +28,16 @@ class EUCJPEncoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder($this->getIndexCodePoint(), $this->getIndexCodePoint2());
+        return new Decoder(Index::get()->jis0208CodePoint(), Index::get()->jis0212CodePoint());
     }
 
     public function getEncoder()
     {
-        return new Encoder($this->getIndexPointer());
+        return new Encoder(Index::get()->jsi0208IndexPointer());
     }
 
     public function getName()
     {
         return 'EUC-JP';
-    }
-
-    protected function getIndexCodePoint()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $path = dirname(__DIR__) . '/bin/index/jis0208.php';
-            $index = include $path;
-        }
-
-        return $index;
-    }
-
-    protected function getIndexCodePoint2()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $path = dirname(__DIR__) . '/bin/index/jis0212.php';
-            $index = include $path;
-        }
-
-        return $index;
-    }
-
-    protected function getIndexPointer()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $value = array();
-            foreach ($this->getIndexCodePoint() as $pointer => $codePoint) {
-                if (!isset($value[$codePoint])) {
-                    $value[$codePoint] = array();
-                }
-                $value[$codePoint][] = $pointer;
-            }
-            $index = $value;
-        }
-
-        return $index;
     }
 }

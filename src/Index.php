@@ -41,6 +41,10 @@ class Index
         
     }
 
+    /**
+     * 
+     * @return  Index
+     */
     public static function get()
     {
         if (static::$instance === null) {

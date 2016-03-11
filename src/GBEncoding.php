@@ -34,12 +34,12 @@ class GBEncoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder($this->getIndexCodePoint(), $this->getIndexRanges());
+        return new Decoder(Index::get()->gb18030CodePoint(), Index::get()->gb18030Ranges());
     }
 
     public function getEncoder()
     {
-        return new Encoder($this->getIndexCodePoint(), $this->getIndexPointerRanges(), $this->name === 'GBK');
+        return new Encoder(Index::get()->gb18030IndexPointer(), Index::get()->gb18030Ranges(), $this->name === 'GBK');
     }
 
     public function getName()
@@ -54,48 +54,6 @@ class GBEncoding extends Encoding
         if ($index === null) {
             $path = dirname(__DIR__) . '/bin/index/gb18030.php';
             $index = include $path;
-        }
-
-        return $index;
-    }
-
-    protected function getIndexPointer()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $value = array();
-            foreach ($this->getIndexCodePoint() as $pointer => $codePoint) {
-                if (!isset($value[$codePoint])) {
-                    $value[$codePoint] = array();
-                }
-                $value[$codePoint][] = $pointer;
-            }
-            $index = $value;
-        }
-
-        return $index;
-    }
-
-    protected function getIndexRanges()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $path = dirname(__DIR__) . '/bin/index/gb18030-ranges.php';
-            $index = include $path;
-        }
-
-        return $index;
-    }
-
-    protected function getIndexPointerRanges()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $index = $this->getIndexRanges();
-            asort($index);
         }
 
         return $index;

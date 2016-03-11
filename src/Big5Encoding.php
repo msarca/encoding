@@ -28,50 +28,16 @@ class Big5Encoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder($this->getIndexCodePoint());
+        return new Decoder(Index::get()->big5CodePoint());
     }
 
     public function getEncoder()
     {
-        return new Encoder($this->getIndexPointer());
+        return new Encoder(Index::get()->big5IndexPointer());
     }
 
     public function getName()
     {
         return 'Big5';
-    }
-
-    protected function getIndexCodePoint()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $path = dirname(__DIR__) . '/bin/index/big5.php';
-            $index = include $path;
-        }
-
-        return $index;
-    }
-
-    protected function getIndexPointer()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $value = array();
-            $cmp = (0xA1 - 0x81) * 157;
-            foreach ($this->getIndexCodePoint() as $pointer => $codePoint) {
-                if ($pointer < $cmp) {
-                    continue;
-                }
-                if (!isset($value[$codePoint])) {
-                    $value[$codePoint] = array();
-                }
-                $value[$codePoint][] = $pointer;
-            }
-            $index = $value;
-        }
-
-        return $index;
     }
 }

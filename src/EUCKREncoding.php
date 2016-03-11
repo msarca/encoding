@@ -28,46 +28,16 @@ class EUCKREncoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder($this->getIndexCodePoint());
+        return new Decoder(Index::get()->euckrCodePoint());
     }
 
     public function getEncoder()
     {
-        return new Encoder($this->getIndexPointer());
+        return new Encoder(Index::get()->euckrIndexPointer());
     }
 
     public function getName()
     {
         return 'EUC-KR';
-    }
-
-    protected function getIndexCodePoint()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $path = dirname(__DIR__) . '/bin/index/euc-kr.php';
-            $index = include $path;
-        }
-
-        return $index;
-    }
-
-    protected function getIndexPointer()
-    {
-        static $index = null;
-
-        if ($index === null) {
-            $value = array();
-            foreach ($this->getIndexCodePoint() as $pointer => $codePoint) {
-                if (!isset($value[$codePoint])) {
-                    $value[$codePoint] = array();
-                }
-                $value[$codePoint][] = $pointer;
-            }
-            $index = $value;
-        }
-
-        return $index;
     }
 }
