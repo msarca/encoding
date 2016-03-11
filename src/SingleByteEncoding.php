@@ -34,12 +34,12 @@ class SingleByteEncoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder(Index::get()->singleByteCodePoint($this->name));
+        return new Decoder($this->name);
     }
 
     public function getEncoder()
     {
-        return new Encoder(Index::get()->singleBytePointer($this->name));
+        return new Encoder($this->name);
     }
 
     public function getName()

@@ -20,17 +20,13 @@
 
 namespace Opis\Encoding\EUCKR;
 
+use Opis\Encoding\Index;
 use Opis\Encoding\HandleInterface;
 
 class Decoder implements HandleInterface
 {
     protected $index;
     protected $lead = 0x00;
-
-    public function __construct($index)
-    {
-        $this->index = $index;
-    }
 
     public function handle($byte, $stream, &$result)
     {
@@ -45,6 +41,9 @@ class Decoder implements HandleInterface
             if ($pointer === null) {
                 $cp = null;
             } else {
+                if ($this->index === null) {
+                    $this->index = Index::get()->euckrCodePoint();
+                }
                 $cp = isset($this->index[$pointer]) ? $this->index[$pointer] : null;
             }
 

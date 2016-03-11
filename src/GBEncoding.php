@@ -34,12 +34,12 @@ class GBEncoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder(Index::get()->gb18030CodePoint(), Index::get()->gb18030Ranges());
+        return new Decoder();
     }
 
     public function getEncoder()
     {
-        return new Encoder(Index::get()->gb18030IndexPointer(), Index::get()->gb18030Ranges(), $this->name === 'GBK');
+        return new Encoder($this->name === 'GBK');
     }
 
     public function getName()

@@ -20,16 +20,12 @@
 
 namespace Opis\Encoding\EUCJP;
 
+use Opis\Encoding\Index;
 use Opis\Encoding\HandleInterface;
 
 class Encoder implements HandleInterface
 {
     protected $index;
-
-    public function __construct($index)
-    {
-        $this->index = $index;
-    }
 
     public function handle($codepoint, $stream, &$result)
     {
@@ -55,6 +51,10 @@ class Encoder implements HandleInterface
 
         if ($codepoint === 0x2212) {
             $codepoint = 0xFF0D;
+        }
+
+        if ($this->index === null) {
+            $this->index = Index::get()->jsi0208IndexPointer();
         }
 
         $pointer = isset($this->index[$codepoint]) ? reset($this->index[$codepoint]) : null;

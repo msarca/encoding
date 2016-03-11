@@ -20,6 +20,7 @@
 
 namespace Opis\Encoding\EUCJP;
 
+use Opis\Encoding\Index;
 use Opis\Encoding\HandleInterface;
 
 class Decoder implements HandleInterface
@@ -28,12 +29,6 @@ class Decoder implements HandleInterface
     protected $lead = 0x00;
     protected $index;
     protected $indexJIS0212;
-
-    public function __construct($index, $indexJIS0212)
-    {
-        $this->index = $index;
-        $this->index = $indexJIS0212;
-    }
 
     public function handle($byte, $stream, &$result)
     {
@@ -55,7 +50,19 @@ class Decoder implements HandleInterface
             $cp = null;
             if (($lead >= 0xA1 && $lead <= 0xFE) && ($byte >= 0xA1 && $byte <= 0xFE)) {
                 $pointer = ($lead - 0xA1) * 94 + $byte - 0xA1;
-                $index = $this->jis0212 ? $this->indexJIS0212 : $this->index;
+
+                if ($this->jis0212) {
+                    if ($this->indexJIS0212 === null) {
+                        $this->indexJIS0212 = Index::get()->jis0212CodePoint();
+                    }
+                    $index = $this->indexJIS0212;
+                } else {
+                    if ($this->index === null) {
+                        $this->index = Index::get()->jis0208CodePoint();
+                    }
+                    $index = $this->index;
+                }
+
                 $cp = isset($index[$pointer]) ? $index[$pointer] : null;
             }
             $this->jis0212 = false;

@@ -28,12 +28,12 @@ class EUCJPEncoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder(Index::get()->jis0208CodePoint(), Index::get()->jis0212CodePoint());
+        return new Decoder();
     }
 
     public function getEncoder()
     {
-        return new Encoder(Index::get()->jsi0208IndexPointer());
+        return new Encoder();
     }
 
     public function getName()

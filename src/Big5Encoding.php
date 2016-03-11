@@ -28,12 +28,12 @@ class Big5Encoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder(Index::get()->big5CodePoint());
+        return new Decoder();
     }
 
     public function getEncoder()
     {
-        return new Encoder(Index::get()->big5IndexPointer());
+        return new Encoder();
     }
 
     public function getName()

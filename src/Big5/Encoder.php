@@ -20,16 +20,12 @@
 
 namespace Opis\Encoding\Big5;
 
+use Opis\Encoding\Index;
 use Opis\Encoding\HandleInterface;
 
 class Encoder implements HandleInterface
 {
     protected $index;
-
-    public function __construct($index)
-    {
-        $this->index = $index;
-    }
 
     public function handle($codepoint, $stream, &$result)
     {
@@ -45,9 +41,15 @@ class Encoder implements HandleInterface
             case 0x256A:
             case 0x5341:
             case 0x5345:
+                if ($this->index === null) {
+                    $this->index = Index::get()->big5IndexPointer();
+                }
                 $pointer = isset($this->index[$codepoint]) ? end($this->index[$codepoint]) : null;
                 break;
             default:
+                if ($this->index === null) {
+                    $this->index = Index::get()->big5IndexPointer();
+                }
                 $pointer = isset($this->index[$codepoint]) ? reset($this->index[$codepoint]) : null;
         }
 
@@ -55,6 +57,7 @@ class Encoder implements HandleInterface
             $result = $codepoint;
             return self::STATUS_ERROR;
         }
+
         $lead = floor($pointer / 157) + 0x81;
         $trail = $pointer % 157;
         $offset = $trail < 0x3F ? 0x40 : 0x62;

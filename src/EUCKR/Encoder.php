@@ -20,22 +20,22 @@
 
 namespace Opis\Encoding\EUCKR;
 
+use Opis\Encoding\Index;
 use Opis\Encoding\HandleInterface;
 
 class Encoder implements HandleInterface
 {
     protected $index;
 
-    public function __construct($index)
-    {
-        $this->index = $index;
-    }
-
     public function handle($codepoint, $stream, &$result)
     {
         if ($codepoint >= 0x0000 && $codepoint <= 0x007F) {
             $result = chr($codepoint);
             return self::STATUS_TOKEN;
+        }
+
+        if ($this->index === null) {
+            $this->index = Index::get()->euckrIndexPointer();
         }
 
         $pointer = isset($this->index[$codepoint]) ? reset($this->index[$codepoint]) : null;

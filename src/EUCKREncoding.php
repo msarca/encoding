@@ -28,12 +28,12 @@ class EUCKREncoding extends Encoding
 
     public function getDecoder()
     {
-        return new Decoder(Index::get()->euckrCodePoint());
+        return new Decoder();
     }
 
     public function getEncoder()
     {
-        return new Encoder(Index::get()->euckrIndexPointer());
+        return new Encoder();
     }
 
     public function getName()

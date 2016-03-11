@@ -20,15 +20,17 @@
 
 namespace Opis\Encoding\SingleByte;
 
+use Opis\Encoding\Index;
 use Opis\Encoding\HandleInterface;
 
 class Encoder implements HandleInterface
 {
+    protected $name;
     protected $index;
 
-    public function __construct($index)
+    public function __construct($name)
     {
-        $this->index = $index;
+        $this->name = $name;
     }
 
     public function handle($codepoint, $stream, &$result)
@@ -38,6 +40,10 @@ class Encoder implements HandleInterface
             return self::STATUS_TOKEN;
         }
 
+        if ($this->index === null) {
+            $this->index = Index::get()->singleBytePointer($this->name);
+        }
+        
         $ptr = isset($this->index[$codepoint]) ? reset($this->index[$codepoint]) : null;
         if ($ptr === null) {
             return self::STATUS_ERROR;

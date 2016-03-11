@@ -20,6 +20,7 @@
 
 namespace Opis\Encoding\GB;
 
+use Opis\Encoding\Index;
 use Opis\Encoding\HandleInterface;
 
 class Encoder implements HandleInterface
@@ -28,10 +29,8 @@ class Encoder implements HandleInterface
     protected $index;
     protected $range;
 
-    public function __construct($index, $range, $gbk = false)
+    public function __construct($gbk = false)
     {
-        $this->index = $index;
-        $this->range = $range;
         $this->gbk = $gbk;
     }
 
@@ -52,6 +51,10 @@ class Encoder implements HandleInterface
             return self::STATUS_TOKEN;
         }
 
+        if ($this->index === null) {
+            $this->index = Index::get()->gb18030IndexPointer();
+        }
+
         $pointer = isset($this->index[$codepoint]) ? reset($this->index[$codepoint]) : null;
 
         if ($pointer !== null) {
@@ -70,6 +73,9 @@ class Encoder implements HandleInterface
         if ($codepoint === 0xE7C7) {
             $pointer = 7457;
         } else {
+            if ($this->range === null) {
+                $this->range = Index::get()->gb18030Ranges();
+            }
             $offset = $po = null;
             foreach ($this->range as $ptr => $cpv) {
                 if ($cpv <= $codepoint) {
