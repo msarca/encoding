@@ -92,6 +92,7 @@ abstract class Encoding
                 return null;
             //Legacy multi-byte Japanese encodings
             case 'EUC-JP':
+                return new EUCJPEncoding();
             case 'ISO-2022-JP':
             case 'Shift_JIS':
                 return null;
