@@ -89,7 +89,7 @@ abstract class Encoding
                 return $instances[$encoding];
             //Legacy multi-byte Chinese (traditional) encodings
             case 'Big5':
-                return null;
+                return new Big5Encoding();
             //Legacy multi-byte Japanese encodings
             case 'EUC-JP':
                 return new EUCJPEncoding();
