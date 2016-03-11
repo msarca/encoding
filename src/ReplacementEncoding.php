@@ -26,11 +26,6 @@ use Opis\Encoding\Replacement\Decoder;
 class ReplacementEncoding extends Encoding
 {
 
-    protected function __construct()
-    {
-        
-    }
-
     public function getDecoder()
     {
         return new Decoder();

@@ -26,11 +26,6 @@ use Opis\Encoding\UTF8\Decoder;
 class UTF8Encoding extends Encoding
 {
 
-    protected function __construct()
-    {
-        
-    }
-    
     public function getDecoder($new = false)
     {
         return new Decoder();

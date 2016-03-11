@@ -26,11 +26,6 @@ use Opis\Encoding\Big5\Decoder;
 class Big5Encoding extends Encoding
 {
 
-    protected function __construct()
-    {
-        
-    }
-
     protected function getIndexCodePoint()
     {
         static $index = null;

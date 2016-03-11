@@ -23,6 +23,17 @@ namespace Opis\Encoding;
 abstract class Encoding
 {
 
+    protected function __construct()
+    {
+        // Protected constructor
+    }
+
+    abstract public function getDecoder();
+
+    abstract public function getEncoder();
+
+    abstract public function getName();
+
     public static function getEncoding($label)
     {
         static $instances = array();
@@ -382,10 +393,4 @@ abstract class Encoding
 
         return null;
     }
-
-    abstract public function getDecoder();
-
-    abstract public function getEncoder();
-
-    abstract public function getName();
 }
