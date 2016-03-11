@@ -98,7 +98,7 @@ abstract class Encoding
                 return null;
             //Legacy multi-byte Korean encodings
             case 'EUC-KR':
-                return null;
+                return new EUCKREncoding();
             //Legacy miscellaneous encodings
             case 'replacement':
                 if (!isset($instances[$encoding])) {
