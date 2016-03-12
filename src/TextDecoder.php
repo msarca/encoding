@@ -24,16 +24,13 @@ use Exception;
 
 class TextDecoder
 {
-    const DO_NOT_FLUSH = 1;
-    const BOM_SEEN = 2;
-
     protected $encoding;
     protected $ignoreBOM;
     protected $errorMode;
     protected $decoder;
-    protected $flags = 0;
+    protected $doNotFlush = false;
+    protected $bomSeen = false;
 
-    //public function __construct($label = 'utf-8', array $options = array())
     public function __construct(Encoding $encoding, $fatalMode = false, $ignoreBOM = false)
     {
         $this->encoding = $encoding;
@@ -65,16 +62,12 @@ class TextDecoder
             'stream' => false,
         );
 
-        if (!($this->flags & self::DO_NOT_FLUSH == self::DO_NOT_FLUSH)) {
+        if (!$this->doNotFlush) {
             $this->decoder = $this->encoding->getDecoder();
-            $this->flags &= ~self::BOM_SEEN;
+            $this->bomSeen = false;
         }
 
-        if ($options['stream']) {
-            $this->flags |= self::DO_NOT_FLUSH;
-        } else {
-            $this->flags &= ~self::DO_NOT_FLUSH;
-        }
+        $this->doNotFlush = (bool) $options['stream'];
 
         $ptr = 0;
         $length = strlen($input);
@@ -89,10 +82,30 @@ class TextDecoder
             $length += strlen($value);
         };
 
-        for (; $ptr < $length; $ptr++) {
+        while (true) {
+            // Read from stream
+            if ($ptr < $length) {
+                $byte = ord($input[$ptr]);
+            } elseif ($ptr === $length) {
+                $byte = false;
+                $stream = function() use(&$ptr) {
+                    $ptr--;
+                };
+            } else {
+                break;
+            }
+
+            $ptr++;
             $result = null; //Reset result
-            $byte = ord($input[$ptr]);
-            $status = $this->decoder->handle($byte, $stream, $result);
+
+            if ($byte === false) {
+                if ($this->doNotFlush) {
+                    return $this->serializeStream($output);
+                }
+                $status = $this->decoder->handleEOF($stream, $result);
+            } else {
+                $status = $this->decoder->handle($byte, $stream, $result);
+            }
 
             if ($status === HandleInterface::STATUS_TOKEN) {
                 $output[] = $result;
@@ -104,7 +117,7 @@ class TextDecoder
             }
 
             if ($status === HandleInterface::STATUS_ERROR) {
-                if ($this->errorMode == 'fatal') {
+                if ($this->errorMode == 'fatal' || $ptr > $length) {
                     throw new Exception('Error while decoding');
                 }
                 //replacement
@@ -120,21 +133,9 @@ class TextDecoder
             }
 
             if ($status === HandleInterface::STATUS_FINISHED) {
-                break;
+                return $this->serializeStream($output);
             }
         }
-
-        if ($this->flags & self::DO_NOT_FLUSH == self::DO_NOT_FLUSH) {
-            return $this->serializeStream($output);
-        }
-
-        $status = $this->decoder->handleEOF($stream, $result);
-
-        if ($status === HandleInterface::STATUS_ERROR) {
-            throw new Exception('Error while decoding');
-        }
-
-        return $this->serializeStream($output);
     }
 
     public function encoding()
@@ -156,8 +157,8 @@ class TextDecoder
     {
         $matchEncoding = in_array($this->encoding(), array('utf-8', 'utf-16be', 'utf-16le', 'utf-16'));
 
-        if ($matchEncoding && !$this->ignoreBOM && !($this->flags & self::BOM_SEEN == self::BOM_SEEN)) {
-            $this->flags |= self::BOM_SEEN;
+        if ($matchEncoding && !$this->ignoreBOM && !$this->bomSeen) {
+            $this->bomSeen = true;
             if (0xFEFF === reset($stream)) {
                 array_shift($stream);
             }
