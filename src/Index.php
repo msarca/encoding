@@ -35,6 +35,7 @@ class Index
     protected $gb18030CP;
     protected $gb18030IP;
     protected $gb18030Ranges;
+    protected $shiftJISIP;
 
     protected function __construct()
     {
@@ -209,5 +210,24 @@ class Index
         }
 
         return $this->gb18030Ranges;
+    }
+
+    public function shiftJISIndexPointer()
+    {
+        if ($this->shiftJISIP === null) {
+            $value = array();
+            foreach ($this->jis0208CodePoint() as $pointer => $codePoint) {
+                if ($pointer >= 8272 && $pointer <= 8835) {
+                    continue;
+                }
+                if (!isset($value[$codePoint])) {
+                    $value[$codePoint] = array();
+                }
+                $value[$codePoint][] = $pointer;
+            }
+            $this->shiftJISIP = $value;
+        }
+
+        return $this->shiftJISIP;
     }
 }
