@@ -60,9 +60,19 @@ class TextEncoder
             $length += is_array($value) ? count($input) : 1;
         };
 
-        for (; $ptr < $length; $ptr++) {
+        while (true) {
+            if ($ptr < $length) {
+                $codepoint = $input[$ptr];
+            } elseif ($ptr === $length) {
+                $codepoint = false;
+                $stream = function() use(&$ptr) {
+                    $ptr--;
+                };
+            } else {
+                break;
+            }
+            $ptr++;
             $result = null;
-            $codepoint = $input[$ptr];
             $status = $encoder->handle($codepoint, $stream, $result);
 
             if ($status === HandleInterface::STATUS_TOKEN) {
@@ -70,8 +80,12 @@ class TextEncoder
                 continue;
             }
 
+            if ($status === HandleInterface::STATUS_CONTINUE) {
+                continue;
+            }
+
             if ($status === HandleInterface::STATUS_ERROR) {
-                if ($this->errorMode === 'fatal') {
+                if ($this->errorMode === 'fatal' || $ptr > $length) {
                     throw new Exception('Error while decoding');
                 }
 
@@ -89,9 +103,11 @@ class TextEncoder
                 $stream($insert);
                 continue;
             }
-        }
 
-        return $string ? implode('', $output) : $output;
+            if ($status === HandleInterface::STATUS_FINISHED) {
+                return $string ? implode('', $output) : $output;
+            }
+        }
     }
 
     public function encoding()
