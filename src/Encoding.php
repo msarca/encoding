@@ -94,6 +94,7 @@ abstract class Encoding
             case 'EUC-JP':
                 return new EUCJPEncoding();
             case 'ISO-2022-JP':
+                return new ISO2022JPEncoding();
             case 'Shift_JIS':
                 return null;
             //Legacy multi-byte Korean encodings
