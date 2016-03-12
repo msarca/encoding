@@ -87,6 +87,9 @@ class TextDecoder
             if ($ptr < $length) {
                 $byte = ord($input[$ptr]);
             } elseif ($ptr === $length) {
+                if ($this->doNotFlush) {
+                    return $this->serializeStream($output);
+                }
                 $byte = false;
                 $stream = function() use(&$ptr) {
                     $ptr--;
@@ -99,9 +102,6 @@ class TextDecoder
             $result = null; //Reset result
 
             if ($byte === false) {
-                if ($this->doNotFlush) {
-                    return $this->serializeStream($output);
-                }
                 $status = $this->decoder->handleEOF($stream, $result);
             } else {
                 $status = $this->decoder->handle($byte, $stream, $result);
