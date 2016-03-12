@@ -73,7 +73,12 @@ class TextEncoder
             }
             $ptr++;
             $result = null;
-            $status = $encoder->handle($codepoint, $stream, $result);
+
+            if ($codepoint === false) {
+                $status = $encoder->handleEOF($stream, $result);
+            } else {
+                $status = $encoder->handle($codepoint, $stream, $result);
+            }
 
             if ($status === HandleInterface::STATUS_TOKEN) {
                 $output[] = $result;
